@@ -1,19 +1,74 @@
-function readFile() {
+var readFile = function() {
+	
+	var file = document.getElementById("file").files[0];
+		
+	document.getElementById("fileName").textContent = file.name;
+	document.getElementById("fileSize").textContent = "(" + file.size + "bytes)";
 
-	var files = document.getElementById('files').files;
-	if(!files.length){
-		alert('파일을 선택해주세요');
-	}
-	
-	var file = files[0];
-	document.getElementById('fileSize').textContext = file.size + "bytes";
-	
+				
 	var reader = new FileReader();
 	
+	this.balanceData = new Array();
+	this.smoothedData = new Array();
+	var a,b,c,d,count;
+	var ArrayNumber = 0;	
+	var i = 0;	
+	
 	reader.onload = function(){
-		var content = document.getElementById('fileContent');
-		content.textContent = event.target.result;
-		
+
+		var display = document.getElementById("content");
+		var result = reader.result;
+
+		while(1){
+			if(result[i] == '+'){
+				a = +1;
+				count = 0;
+			}
+			else if(result[i] == '-'){
+				a = -1;
+				count = 0;
+			}
+			else if(result[i] == 'C')
+				break;
+			else{
+				if (count == 1)
+					b = parseInt(result[i]) * 100;
+				else if (count == 2)
+					c = parseInt(result[i]) * 10;
+				else if (count == 3){
+					d = parseInt(result[i]);
+					balanceData[ArrayNumber] = a*(b+c+d);
+					ArrayNumber++;
+				}
+			}
+			i++;
+			count++;
+		}
+		for(var k=0; k<8000; k++)
+			smoothedData[k] = balanceData[k];
+		for(var k = 0; k < 8000; k++)
+		{
+			var l = k - 2;
+			var m = k + 2;
+			var mid = 0;
+			if( l >= 0 && m < 8000)
+			{
+				mid = (smoothedData[l] + smoothedData[m]) *0.5;
+				smoothedData[k] = (mid + smoothedData[k]) *0.5
+			}
+		}
+		var s1 = new Array();
+		for(var k=0; k<4000; k++)
+		{
+			s1[3*k] = balanceData[2*k];
+			s1[3*k+1] = balanceData[2*k+1];
+			s1[3*k+2] = 0;
+		}
+		display.textContent = balanceData;
+	};
+	
+	readFile.prototype.ta = function(){
+		return balanceData;
 	};
 	
 	reader.onerror = function(event){
@@ -21,157 +76,13 @@ function readFile() {
 			if(errcode == 1)
 				alert("File을 찾지 못하였습니다.");
 	};
-	//===================================== Data Load =====================================//
-/*
-var maxData = 4000;
-var balanceData = new Array(maxData,2);
-var smoothedData = new Array(maxData,2);
+	
+	var encodingList = document.getElementById("encoding");
+	var encoding = encodingList.options[encodingList.selectedIndex].value;
 
-var loader = new Boolean(false);
-var nData = 0;
-
-var DataLoad = function(){
-	
-	var filename = files;
-	var fileObject = new ActiveXObject("Scripting.FileSystemObject");
-	
-	if(fileObject.FileExists(filename))
-	{
-		var fOpen = fileObject.OpenTextFile(filename,1);
-		var c;
-		var readingX =  new Boolean(true);
-		var x; var y;
-		var count = 0;
-		
-		while( (fOpen.read()) != -1 && count<maxData){
-			if(c == '+'){
-				var base = 100; x=0; y=0;
-				for(var i=0; i<3; i++){
-					c=fin.read();
-                	if(readingX)
-						x += (c-'0')*base;
-                	else
-						y+= (c-'0')*base;
-                	base /= 10;
-				}
-				if(readingX)
-					balanceData[count][0] = x;
-               	else
-					balanceData[count][1] = y;
-               	readingX = readingX?false:true;
-               	if(readingX)
-					count++;
-			}
-			else if(c=='-') {
-               	var base = 100; x=0; y=0;
-               	for(var i=0;i<3;i++) {
-               		c=fin.read();
-               		if(readingX)
-						x += (c-'0')*base;
-               		else
-						y+= (c-'0')*base;
-               		base /= 10;
-                	}
-               	if(readingX)
-					x*=-1.0;
-               	else
-					y*=-1.0;
-               	if(readingX)
-					balanceData[count][0] = x;
-               	else
-					balanceData[count][1] = y;
-               	readingX = readingX?false:true;
-               	if(readingX)
-					count++;
-            }
-            if(c<10) break;
-		}
-		this.nData = count;
-        if(count>=1000)
-			loaded = true;
-        fOpen.close();
-	}
-		
-};
-	
-	*/
 	reader.readAsText(file);
-//	document.write(balanceData[0][1]);
-};
-/*
-var main = function(){
-		
-//===================================== Data Load =====================================//
 
-final int maxData = 4000;
-double balanceData[][] = new double[maxData][2];
-double smoothedData[][] = new double[maxData][2];
-
-boolean loaded = false;
-int nData = 0;
-
-var DataLoad = function(){
 	
-	var filename = file;
-	var fileObject = new ActiveXObject("Scripting.FileSystemObject");
-	
-	if(fileObject.FileExists(filename))
-	{
-		var fOpen = fileObject.OpenTextFile(filename,1);
-		int c;
-		boolean readingX = true;
-		float x; float y;
-		int count = 0;
-		
-		while( (fOpen.read()) != -1 && count<maxData){
-			if(c == '+'){
-				int base = 100; x=0; y=0;
-				for(int i=0; i<3; i++){
-					c=fin.read();
-                	if(readingX)
-						x += (c-'0')*base;
-                	else
-						y+= (c-'0')*base;
-                	base /= 10;
-				}
-				if(readingX)
-					balanceData[count][0] = x;
-               	else
-					balanceData[count][1] = y;
-               	readingX = readingX?false:true;
-               	if(readingX)
-					count++;
-			}
-			else if(c=='-') {
-               	int base = 100; x=0; y=0;
-               	for(int i=0;i<3;i++) {
-               		c=fin.read();
-               		if(readingX)
-						x += (c-'0')*base;
-               		else
-						y+= (c-'0')*base;
-               		base /= 10;
-                	}
-               	if(readingX)
-					x*=-1.0;
-               	else
-					y*=-1.0;
-               	if(readingX)
-					balanceData[count][0] = x;
-               	else
-					balanceData[count][1] = y;
-               	readingX = readingX?false:true;
-               	if(readingX)
-					count++;
-            }
-            if(c<10) break;
-		}
-		this.nData = count;
-        if(count>=1000)
-			loaded = true;
-        fOpen.close();
-	}
-		
+	//===================================== Data Load =====================================//
 };
-};*/
-
+	

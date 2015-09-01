@@ -110,9 +110,9 @@ gl_FragColor = vec4(vColor, 1.);\n\
   var time_old = 0;
   var animate = function(time){
 	  var dt = time-time_old;
-	  LIBS.rotateZ(MOVEMATRIX, dt*0.005);
-	  LIBS.rotateY(MOVEMATRIX, dt*0.004);
-	  LIBS.rotateX(MOVEMATRIX, dt*0.003);
+	//  LIBS.rotateZ(MOVEMATRIX, dt*0.005);
+	//  LIBS.rotateY(MOVEMATRIX, dt*0.004);
+	//  LIBS.rotateX(MOVEMATRIX, dt*0.003);
 	  time_old = time;
   
     GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);

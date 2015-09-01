@@ -4,14 +4,25 @@
 	<meta charset="utf-8">
 		<title>Data Visualization</title>
 		<script type="text/javascript" src="main_script.js"></script>
+		<script type="text/javascript" src="libs.js"></script>
+		<script type="text/javascript" src="graphic_script.js"></script>
 	</head>
 	<body>
-	<div class="fileWrap" id="fileRead">
-		<input type="file" id="files" name="file" onchange="readFile()">
-		<div id="fileSize"></div>
-		<textarea id = "fileContent" style="width:600px; height:100px;" readonly=""></br>
+		<canvas id='your_canvas'
+            width="600px" height="600px" style='background-color: GRAY;'>
+		</canvas></br>
+		<input type="file" id="file"/>
+		<select id = "encoding">
+			<option>UTF-8</option>
+		</select>
+		<button onclick = "readFile()">DataRead</button>
+		<button onclick = "draw()">DataDraw</button><br/>
+		<div>
+			<span id = "fileName">File Name</span>
+			<span id = "fileSize">File Size</span>
+		</div>
+					
+		<textarea id = "content" style="position: top; width:200px; height:50px;" readonly></br>
 		</textarea>
-		
-	</div>
 	</body>
 </html>
