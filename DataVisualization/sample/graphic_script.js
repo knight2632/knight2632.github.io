@@ -1,4 +1,7 @@
+
 function draw(){
+	/*====================================== DRAW DATA ====================================================*/
+	
 	var CANVAS = document.getElementById("your_canvas");
 	CANVAS.width=window.innerWidth;
 	CANVAS.height=window.innerHeight;
@@ -56,7 +59,7 @@ function draw(){
 	var _Pmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Pmatrix");
 	var _Vmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Vmatrix");
 	var _Mmatrix = GL.getUniformLocation(SHADER_PROGRAM, "Mmatrix");
-
+  
 	var _color = GL.getAttribLocation(SHADER_PROGRAM, "color");
 	var _position = GL.getAttribLocation(SHADER_PROGRAM, "position");
 
@@ -67,13 +70,11 @@ function draw(){
 		
 	/*================================= LINE_STRIPS ============================================*/
 	//POINT
-	
-	var drawLine1 = new Array();
-	drawLine1 = readFile.ta();
+	var drawdata = readFile.dataLoad;
 	var drawLine = new Array();
 	for(var k=0; k < 4000; k++){
-		drawLine[6*k] = drawLine1[2*k];
-		drawLine[6*k+1] = drawLine1[2*k+1];
+		drawLine[6*k] = balanceData[2*k];
+		drawLine[6*k+1] = balanceData[2*k+1];
 		drawLine[6*k+2] = 0;
 		
 		//color
@@ -81,51 +82,58 @@ function draw(){
 		drawLine[6*k+4] = 0;
 		drawLine[6*k+5] = 0;
 	}
-	var color_vertex = [1,0,0];
-	
 	var DRAWLINE_VERTEX = GL.createBuffer();
 	GL.bindBuffer(GL.ARRAY_BUFFER, DRAWLINE_VERTEX);
 	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(drawLine), GL.STATIC_DRAW);
 	
-	var COLOR_VERTEX = GL.createBuffer();
-	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, COLOR_VERTEX);
-	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Float32Array(color_vertex), GL.STATIC_DRAW);
+	var Line_faces = new Array();
+	for(var k = 0; k<4000; k++)
+	{
+			Line_faces[k] = k;
+	}
+	var LINE_FACES = GL.createBuffer();
+	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, LINE_FACES);
+	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(Line_faces), GL.STATIC_DRAW);
 	
-	
-	/*=================================== MATRIX ============================================*/
-	
-	var PROJMATRIX = LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1, 100);
-	var MOVEMATRIX = LIBS.get_I4();
-	var VIEWMATRIX = LIBS.get_I4();
-	
+	/*========================= MATRIX ========================= */
+
+	var PROJMATRIX=LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1, 100);
+	var MOVEMATRIX=LIBS.get_I4();
+	var VIEWMATRIX=LIBS.get_I4();
+
+
 	/*==================================== DRAWING ===============================================*/
 	
-	GL.clearColor(0.0, 0.0, 0.0, 0.0);
+	GL.clearColor(0.0, 0.0, 0.0, 1.0);
 	
 	GL.enable(GL.DEPTH_TEST);
 	GL.depthFunc(GL.LEQUAL);
 	
 	GL.clearDepth(1.0);
-	var time_old = 0;
+	
 	var animate = function(time){
 	
 	GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
 	GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+	
 	GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
-	GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
-	GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
+    GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
+    GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
 	
 	//vertex
 	GL.bindBuffer(GL.ARRAY_BUFFER, DRAWLINE_VERTEX);
 	GL.vertexAttribPointer(_position, 3, GL.FLOAT, false, 4*(3+3), 0);
 	GL.vertexAttribPointer(_color, 3, GL.FLOAT, false, 4*(3+3) , 3*4); // color
-//	GL.bindBuffer(GL.ARRAY_BUFFER, DRAWLINE_FACES);	// 수정
-		
-	GL.drawElements(GL.LINE_STRIPS, 3, GL.UNSIGNED_SHORT, 0);
-	
+
+	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, LINE_FACES);	
+	GL.drawElements(GL.LINE_STRIP, 3999, GL.UNSIGNED_SHORT, 0);
+//	gl.drawArrays(gl.LINE_STRIP, 0, 4000);
 	GL.flush();
 	
 	window.requestAnimationFrame(animate);
+	
 	};
+	console.log(Line_faces);
+	console.log(drawLine);
 	animate(0);
 };

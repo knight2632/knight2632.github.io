@@ -1,4 +1,4 @@
-var readFile = function() {
+this.readFile = function() {
 	
 	var file = document.getElementById("file").files[0];
 		
@@ -9,13 +9,25 @@ var readFile = function() {
 	var reader = new FileReader();
 	
 	this.balanceData = new Array();
-	this.smoothedData = new Array();
+	var smoothedData = new Array();
 	var a,b,c,d,count;
 	var ArrayNumber = 0;	
-	var i = 0;	
-	
+			
 	reader.onload = function(){
 
+		dataLoad();
+	};
+		
+	reader.onerror = function(event){
+		var errcode = event.target.error.code;
+			if(errcode == 1)
+				alert("File을 찾지 못하였습니다.");
+	};
+	
+	var dataLoad = function()
+	{
+		var i = 0;	
+	
 		var display = document.getElementById("content");
 		var result = reader.result;
 
@@ -65,24 +77,12 @@ var readFile = function() {
 			s1[3*k+2] = 0;
 		}
 		display.textContent = balanceData;
-	};
-	
-	readFile.prototype.ta = function(){
 		return balanceData;
-	};
-	
-	reader.onerror = function(event){
-		var errcode = event.target.error.code;
-			if(errcode == 1)
-				alert("File을 찾지 못하였습니다.");
 	};
 	
 	var encodingList = document.getElementById("encoding");
 	var encoding = encodingList.options[encodingList.selectedIndex].value;
 
 	reader.readAsText(file);
-
 	
-	//===================================== Data Load =====================================//
 };
-	
