@@ -23,5 +23,9 @@ var LIBS={
 				0, 1, 0, 0,
 				0, 0, 1, 0,
 				0, 0, 0, 1];
-	}
+	},
+	
+	translateZ: function(m, t){
+    m[14]+=t;
+  }
 };
