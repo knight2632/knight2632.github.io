@@ -1,10 +1,45 @@
 
 var draw = function(){
 	/*====================================== DRAW DATA ====================================================*/
-	
+	var windowSize = 700;
 	var CANVAS = document.getElementById("your_canvas");
-	CANVAS.width=window.innerWidth;
-	CANVAS.height=window.innerHeight;
+	CANVAS.width=windowSize;//window.innerWidth*0.75;
+	CANVAS.height=windowSize;//window.innerHeight*0.75;
+	
+	/*================================= Mouse Event ==================================================*/
+	var AMORTIZATION = 0.95;
+	var drag = false;
+	
+	var old_x, old_y;
+	
+	var dX = 0, dY = 0;
+	
+	var mouseDown=function(e){
+		drag = true;
+		old_x = e.pageX, old_y = e.pageY;
+		e.preventDefault();
+		return false;
+	}
+	
+	var mouseUp=function(e){
+		drag = false;
+	}
+	
+	var mouseMove=function(e){
+		if(!drag) return false;
+		dY = old_y - e.pageY;
+		if(dY > 0)
+			VIEWMATRIX[14] = VIEWMATRIX[14] - 1;
+		else if(dY < 0)
+			VIEWMATRIX[14] = VIEWMATRIX[14] + 1;
+		old_x = e.pageX, old_y = e.pageY;
+		e.preventDefault();
+	}
+	
+	CANVAS.addEventListener("mousedown", mouseDown, false);
+	CANVAS.addEventListener("mouseup", mouseUp, false);
+	CANVAS.addEventListener("mouseout", mouseUp, false);
+	CANVAS.addEventListener("mousemove", mouseMove, false);
 	
 	/*========================= GET WEBGL CONTEXT ========================= */
 	var GL;
@@ -16,7 +51,6 @@ var draw = function(){
 	}
 	
 	/*========================= SHADERS ==================================== */
-	
 	var shader_vertex_source="\n\
 		attribute vec3 position;\n\
 		uniform mat4 Pmatrix;\n\
@@ -73,8 +107,8 @@ var draw = function(){
 	var drawdata = readFile.dataLoad;
 	var drawLine = new Array();
 	for(var k=0; k < 4000; k++){
-		drawLine[6*k] = balanceData[2*k];
-		drawLine[6*k+1] = balanceData[2*k+1];
+		drawLine[6*k] = balanceData[2*k]*0.5;
+		drawLine[6*k+1] = balanceData[2*k+1]*0.5;
 		drawLine[6*k+2] = 0;
 		
 		//color
@@ -94,35 +128,16 @@ var draw = function(){
 	var LINE_FACES = GL.createBuffer();
 	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, LINE_FACES);
 	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(Line_faces), GL.STATIC_DRAW);
-	
-//	var triangle_vertex=[
-//		-1,-1,0,
-//		0,0,1,
-//		1,-1,0,
-//		1,1,0,
-//		1,1,0,
-//		1,0,0
-//	  ];
 
-//  var TRIANGLE_VERTEX= GL.createBuffer ();
-//	GL.bindBuffer(GL.ARRAY_BUFFER, TRIANGLE_VERTEX);
-//	GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(triangle_vertex), GL.STATIC_DRAW);
-	//FACES :
-//	var triangle_faces = [0,1,2];
-//	var TRIANGLE_FACES= GL.createBuffer ();
-//	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, TRIANGLE_FACES);
-//	GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, new Uint16Array(triangle_faces), GL.STATIC_DRAW);
 	
 	/*========================= MATRIX ========================= */
-
 	var PROJMATRIX=LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1, 100);
 	var MOVEMATRIX=LIBS.get_I4();
 	var VIEWMATRIX=LIBS.get_I4();
 
 	LIBS.translateZ(VIEWMATRIX, -5);
-	 
+	 var THETA=0, PHI=0;
 	/*==================================== DRAWING ===============================================*/
-	
 	GL.clearColor(0.0, 0.0, 0.0, 0.0);
 	
 	GL.enable(GL.DEPTH_TEST);
@@ -131,33 +146,26 @@ var draw = function(){
 	GL.clearDepth(1.0);
 	
 	var animate = function(time){
-	
-	GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
-	GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-	
-	GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
-    GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
-    GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
-	
-	//vertex
-	GL.bindBuffer(GL.ARRAY_BUFFER, DRAWLINE_VERTEX);
-	GL.vertexAttribPointer(_position, 3, GL.FLOAT, false, 4*(3+3), 0);
-	GL.vertexAttribPointer(_color, 3, GL.FLOAT, false, 4*(3+3) , 3*4); // color
+					
+		GL.viewport(0.0, 0.0, CANVAS.width, CANVAS.height);
+		GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+		
+		GL.uniformMatrix4fv(_Pmatrix, false, PROJMATRIX);
+		GL.uniformMatrix4fv(_Vmatrix, false, VIEWMATRIX);
+		GL.uniformMatrix4fv(_Mmatrix, false, MOVEMATRIX);
+		
+		//vertex
+		GL.bindBuffer(GL.ARRAY_BUFFER, DRAWLINE_VERTEX);
+		GL.vertexAttribPointer(_position, 3, GL.FLOAT, false, 4*(3+3), 0);
+		GL.vertexAttribPointer(_color, 3, GL.FLOAT, false, 4*(3+3) , 3*4); // color
 
-	GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, LINE_FACES);	
-	GL.drawElements(GL.LINE_STRIP, 3999, GL.UNSIGNED_SHORT, 0);
-
-//  GL.bindBuffer(GL.ARRAY_BUFFER, TRIANGLE_VERTEX);
-//  GL.vertexAttribPointer(_position, 3, GL.FLOAT, false,4*(3+3),0) ;
-//  GL.vertexAttribPointer(_color, 3, GL.FLOAT, false,4*(3+3),3*4) ;
-//  GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, TRIANGLE_FACES);
-//  GL.drawElements(GL.TRIANGLES, 3, GL.UNSIGNED_SHORT, 0);
-	GL.flush();
-	
-	window.requestAnimationFrame(animate);
-	
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, LINE_FACES);	
+		GL.drawElements(GL.LINE_STRIP, 3999, GL.UNSIGNED_SHORT, 0);
+		GL.flush();
+		
+		window.requestAnimationFrame(animate);
+		
 	};
-//	console.log(Line_faces);
-//	console.log(drawLine);
+
 	animate(0);
 };

@@ -6,17 +6,19 @@
 		<script type="text/javascript" src="main_script.js"></script>
 		<script type="text/javascript" src="libs.js"></script>
 		<script type="text/javascript" src="graphic_script.js"></script>
+		<script type="text/javascript" src="smooth_script.js"></script>
 	</head>
 	<body>
 		<canvas id='your_canvas'
-            width="CANVAS.width" height="CANVAS.height" style='background-color: GRAY;'>
+            width="700px" height="700px" style='background-color: GRAY;'>
 		</canvas></br>
 		<input type="file" id="file"/>
 		<select id = "encoding">
 			<option>UTF-8</option>
 		</select>
 		<button onclick = "readFile()">DataRead</button>
-		<button onclick = "draw()">DataDraw</button><br/>
+		<button onclick = "draw()">Balance</button>
+		<button onclick = "smoothedData()">Smooth</button><br/>
 		<div>
 			<span id = "fileName">File Name</span>
 			<span id = "fileSize">File Size</span>

@@ -1,0 +1,3 @@
+var smoothedData = function(){
+	
+};
