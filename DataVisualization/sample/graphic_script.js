@@ -7,7 +7,6 @@ var draw = function(){
 	CANVAS.height=windowSize;//window.innerHeight*0.75;
 	
 	/*================================= Mouse Event ==================================================*/
-	var AMORTIZATION = 0.95;
 	var drag = false;
 	
 	var old_x, old_y;
@@ -136,7 +135,7 @@ var draw = function(){
 	var VIEWMATRIX=LIBS.get_I4();
 
 	LIBS.translateZ(VIEWMATRIX, -5);
-	 var THETA=0, PHI=0;
+	
 	/*==================================== DRAWING ===============================================*/
 	GL.clearColor(0.0, 0.0, 0.0, 0.0);
 	

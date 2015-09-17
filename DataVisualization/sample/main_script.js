@@ -9,7 +9,7 @@ this.readFile = function() {
 	var reader = new FileReader();
 	
 	this.balanceData = new Array();
-	var smoothedData = new Array();
+	this.smoothedData = new Array();
 	var a,b,c,d,count;
 	var ArrayNumber = 0;	
 			
